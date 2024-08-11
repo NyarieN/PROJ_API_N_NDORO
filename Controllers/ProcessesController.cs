@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace PROJ_API_N_NDORO.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // This will require authentication for all actions
     public class ProcessesController : ControllerBase
     {
         private readonly NwutechTrendsContext _context;
@@ -42,7 +44,6 @@ namespace PROJ_API_N_NDORO.Controllers
         }
 
         // PUT: api/Processes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProcess(Guid id, Process process)
         {
@@ -59,7 +60,7 @@ namespace PROJ_API_N_NDORO.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProcessExists(id))
+                if (!await ProcessExistsAsync(id))
                 {
                     return NotFound();
                 }
@@ -73,7 +74,6 @@ namespace PROJ_API_N_NDORO.Controllers
         }
 
         // POST: api/Processes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Process>> PostProcess(Process process)
         {
@@ -99,9 +99,10 @@ namespace PROJ_API_N_NDORO.Controllers
             return NoContent();
         }
 
-        private bool ProcessExists(Guid id)
+        private async Task<bool> ProcessExistsAsync(Guid id)
         {
-            return _context.Processes.Any(e => e.ProcessId == id);
+            return await _context.Processes.AnyAsync(e => e.ProcessId == id);
         }
     }
 }
+

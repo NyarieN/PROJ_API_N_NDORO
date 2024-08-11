@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization; 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace PROJ_API_N_NDORO.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // This will require authentication for all actions
     public class ProjectsController : ControllerBase
     {
         private readonly NwutechTrendsContext _context;
@@ -42,7 +44,6 @@ namespace PROJ_API_N_NDORO.Controllers
         }
 
         // PUT: api/Projects/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProject(Guid id, Project project)
         {
@@ -59,7 +60,7 @@ namespace PROJ_API_N_NDORO.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProjectExists(id))
+                if (!await ProjectExistsAsync(id))
                 {
                     return NotFound();
                 }
@@ -73,7 +74,6 @@ namespace PROJ_API_N_NDORO.Controllers
         }
 
         // POST: api/Projects
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Project>> PostProject(Project project)
         {
@@ -99,9 +99,10 @@ namespace PROJ_API_N_NDORO.Controllers
             return NoContent();
         }
 
-        private bool ProjectExists(Guid id)
+        private async Task<bool> ProjectExistsAsync(Guid id)
         {
-            return _context.Projects.Any(e => e.ProjectId == id);
+            return await _context.Projects.AnyAsync(e => e.ProjectId == id);
         }
     }
 }
+

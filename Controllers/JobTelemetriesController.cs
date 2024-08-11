@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization; 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace PROJ_API_N_NDORO.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize] // This will require authentication for all actions
     public class JobTelemetriesController : ControllerBase
     {
         private readonly NwutechTrendsContext _context;
@@ -42,7 +44,6 @@ namespace PROJ_API_N_NDORO.Controllers
         }
 
         // PUT: api/JobTelemetries/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutJobTelemetry(int id, JobTelemetry jobTelemetry)
         {
@@ -59,7 +60,7 @@ namespace PROJ_API_N_NDORO.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!JobTelemetryExists(id))
+                if (!await JobTelemetryExistsAsync(id))
                 {
                     return NotFound();
                 }
@@ -73,7 +74,6 @@ namespace PROJ_API_N_NDORO.Controllers
         }
 
         // POST: api/JobTelemetries
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<JobTelemetry>> PostJobTelemetry(JobTelemetry jobTelemetry)
         {
@@ -98,6 +98,7 @@ namespace PROJ_API_N_NDORO.Controllers
 
             return NoContent();
         }
+
         // Custom method to check if a JobTelemetry exists by ID
         private async Task<bool> JobTelemetryExistsAsync(int id)
         {
@@ -138,14 +139,7 @@ namespace PROJ_API_N_NDORO.Controllers
                 }).ToListAsync();
 
             return Ok(savings);
-
-
-        }
-
-
-        private bool JobTelemetryExists(int id)
-        {
-            return _context.JobTelemetries.Any(e => e.Id == id);
         }
     }
 }
+
